@@ -18,6 +18,69 @@
 	<script src="scripts/before-form.js"></script>
 	<script src="scripts/before-modal.js"></script>
 	<script src="scripts/before-hero.js"></script>
+
+	<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('modalContent');
+    var openButton = document.getElementById('openModalButton'); // Assuming there's a button to open the modal
+    var closeButton = document.getElementById('modalXButton');
+    var focusableModalElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    var firstFocusableElement = focusableModalElements[0];
+    var lastFocusableElement = focusableModalElements[focusableModalElements.length - 1];
+
+    // Function to open the modal and move focus to it
+    function openModal() {
+      modal.style.display = 'block';
+      modal.focus(); // Set focus to modal when opened
+
+      // Trap focus inside the modal
+      document.addEventListener('keydown', trapFocus);
+    }
+
+    // Function to close the modal and return focus to the trigger
+    function closeModal() {
+      modal.style.display = 'none';
+      openButton.focus(); // Return focus to the element that opened the modal
+      document.removeEventListener('keydown', trapFocus); // Stop trapping focus when modal is closed
+    }
+
+    // Trap focus inside the modal
+    function trapFocus(e) {
+      var isTabPressed = (e.key === 'Tab' || e.keyCode === 9);
+
+      if (!isTabPressed) return;
+
+      if (e.shiftKey) {
+        // Shift + Tab: If focus is on the first element, move to the last element
+        if (document.activeElement === firstFocusableElement) {
+          lastFocusableElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        // Tab: If focus is on the last element, move to the first element
+        if (document.activeElement === lastFocusableElement) {
+          firstFocusableElement.focus();
+          e.preventDefault();
+        }
+      }
+    }
+
+    // Event listeners for opening and closing the modal
+    openButton.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+
+    // Allow closing the modal using the ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        closeModal();
+      }
+    });
+  });
+</script>
+
+
+	<button id="openModalButton" type="button">Open Modal</button>
+
 </head>
 <body>
   <div id="content">
@@ -317,7 +380,8 @@
   </div><!--end #content-->
 
   <!--containers for displaying modal content-->
-  <div id="modalMask"></div>
+  <div id="modalContent" role="dialog" aria-modal="true" tabindex="-1">
+
 
   <div id="modalContent">
     <div class="modalHeading">List of accessibility issues</div>
